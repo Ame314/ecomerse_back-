@@ -182,10 +182,57 @@ const resetPassword = async (req, res) => {
   }
 };
 
+// Obtener el perfil del usuario (GET /me)
+const me = async (req, res) => {
+  try {
+    const userId = req.user.userId; // req.user es definido en el verifyToken
+    const [rows] = await pool.query(
+      "SELECT id, username, email, role FROM users WHERE id = ?",
+      [userId]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    return res.json(rows[0]);
+  } catch (error) {
+    console.error("Error al obtener perfil:", error);
+    return res.status(500).json({ message: "Error al obtener perfil" });
+  }
+};
+
+// Actualizar perfil (PUT /me)
+const updateMe = async (req, res) => {
+  try {
+    const userId = req.user.userId;  // Viene del middleware
+    const { username, email } = req.body;
+
+    // Actualizar en la base de datos
+    await pool.query(
+      "UPDATE users SET username = ?, email = ? WHERE id = ?",
+      [username, email, userId]
+    );
+
+    // Volver a obtener los datos actualizados y devolverlos
+    const [rows] = await pool.query(
+      "SELECT id, username, email, role FROM users WHERE id = ?",
+      [userId]
+    );
+
+    return res.json(rows[0]);
+  } catch (error) {
+    console.error("Error al actualizar perfil:", error);
+    return res.status(500).json({ message: "Error al actualizar perfil" });
+  }
+};
+
 module.exports = {
   register,
   login,
   requestPasswordReset,
-  resetPassword
+  resetPassword,
+  me,
+  updateMe
 
 };

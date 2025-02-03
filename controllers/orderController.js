@@ -136,7 +136,7 @@ const getAllOrders = async (req, res) => {
         o.created_at AS order_date,
         u.id AS user_id,
         u.username AS user_name,
-        u.email AS user_email,  // Agregado el correo electrónico
+        u.email AS user_email,
         oi.id AS order_item_id,
         oi.quantity,
         oi.price AS item_price,
